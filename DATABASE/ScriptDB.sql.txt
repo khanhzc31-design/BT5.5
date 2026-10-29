@@ -1,0 +1,45 @@
+create database InventoryDB;
+
+USE InventoryDB;
+
+
+CREATE TABLE NhaCungCap (
+    MaNCC INT IDENTITY(1,1) PRIMARY KEY,
+    TenNCC NVARCHAR(150) NOT NULL,
+    DienThoai VARCHAR(15) UNIQUE,
+    DiaChi NVARCHAR(255)
+);
+
+CREATE TABLE VatTu (
+    MaVatTu VARCHAR(20) PRIMARY KEY,
+    TenVatTu NVARCHAR(150) NOT NULL,
+    DVT NVARCHAR(20),
+    SoLuongTon DECIMAL(18,2) DEFAULT 0 CONSTRAINT CK_VatTu_SoLuongTon CHECK (SoLuongTon >= 0)
+);
+
+CREATE TABLE PhieuKho (
+    MaPhieu INT IDENTITY(1,1) PRIMARY KEY,
+    LoaiPhieu NVARCHAR(10) NOT NULL CONSTRAINT CK_PhieuKho_Loai CHECK (LoaiPhieu IN (N'NHAP', N'XUAT')),
+    NgayLap DATETIME DEFAULT GETDATE(),
+    MaNCC INT NULL CONSTRAINT FK_PhieuKho_NhaCungCap FOREIGN KEY REFERENCES NhaCungCap(MaNCC),
+    TongTien DECIMAL(18,2) DEFAULT 0
+);
+
+CREATE TABLE ChiTietPhieuKho (
+    MaPhieu INT CONSTRAINT FK_CTPK_PhieuKho FOREIGN KEY REFERENCES PhieuKho(MaPhieu),
+    MaVatTu VARCHAR(20) CONSTRAINT FK_CTPK_VatTu FOREIGN KEY REFERENCES VatTu(MaVatTu),
+    SoLuong DECIMAL(18,2) NOT NULL CONSTRAINT CK_CTPK_SoLuong CHECK (SoLuong > 0),
+    DonGia DECIMAL(18,2) NOT NULL CONSTRAINT CK_CTPK_DonGia CHECK (DonGia >= 0),
+    CONSTRAINT PK_ChiTietPhieuKho PRIMARY KEY (MaPhieu, MaVatTu)
+);
+
+INSERT INTO NhaCungCap (TenNCC, DienThoai, DiaChi) VALUES
+(N'Công ty Xi Măng Hà Tiên', '0901234567', N'Quận 1, TP.HCM'),
+(N'Tập đoàn Thép Hòa Phát', '0912345678', N'Hà Nội'),
+(N'Tổng Công ty Gạch Sơn Hà', '0988776655', N'Bình Dương');
+
+INSERT INTO VatTu (MaVatTu, TenVatTu, DVT, SoLuongTon) VALUES
+('VT01', N'Xi măng PCB40', N'Bao', 150),
+('VT02', N'Thép Phi 12', N'Cây', 40),
+('VT03', N'Gạch ống 8x18', N'Viên', 2000),
+('VT04', N'Sơn Nước KOVA', N'Thùng', 8);
